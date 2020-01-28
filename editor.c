@@ -1086,6 +1086,34 @@ void processKey() {
         case '\x1b':
             break;
 
+        // bracked completion
+        case '(':
+            editorInsertChar('(');
+            editorInsertChar(')');
+            E.cur_buf->cx -= 1;
+            break;
+        case '[':
+            editorInsertChar('[');
+            editorInsertChar(']');
+            E.cur_buf->cx -= 1;
+            break;
+        case '{':
+            editorInsertChar('{');
+            editorInsertChar('}');
+            E.cur_buf->cx -= 1;
+            break;
+
+        // if a bracket is next skip it instead of typing
+        case ')':
+        case ']':
+        case '}':
+            if (row->chars[E.cur_buf->cx] == c)
+                E.cur_buf->cx += 1;
+            else
+                editorInsertChar(c);
+            break;
+
+        // default to typing the key out
         default:
             editorInsertChar(c);
             break;

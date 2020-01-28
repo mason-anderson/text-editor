@@ -22,3 +22,4 @@ todo list:
 - [ ] soft tab
 - [ ] copy & paste
 - [ ] config file
+* [x] bracket completion
