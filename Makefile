@@ -1,7 +1,7 @@
 bin_name = editor
 
 CC=gcc
-CFLAGS=-g -std=c99 -Wall -Wextra -Werror -pedantic
+CFLAGS=-ggdb -std=c99 -Wall -Wextra -Werror -pedantic
 
 SRCS=editor.c
 OBJS=$(SRCS:%.c=%.o)
