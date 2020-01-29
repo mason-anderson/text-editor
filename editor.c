@@ -14,6 +14,7 @@
 
 #define CTRL_KEY(k) ((k) & 0x1f)
 
+#define SOFT_TAB_SIZE 4
 #define TAB_SIZE 4
 #define LINENUM_WIDTH 4
 #define LINENUM_COLOR 33
@@ -536,7 +537,10 @@ void editorDrawStatusBar(struct abuf *ab) {
     if (len > E.screencols) len = E.screencols;
 
     int rlen = snprintf(rstatus, sizeof(rstatus), "%.20s | %d/%d : %d ",
-                        E.cur_buf->syntax ? E.cur_buf->syntax->filetype : "no ft", E.cur_buf->cy + 1, E.cur_buf->numrows, E.cur_buf->cx + 1);
+                        E.cur_buf->syntax ? 
+                        E.cur_buf->syntax->filetype :
+                        "no ft", E.cur_buf->cy + 1, E.cur_buf->numrows, E.cur_buf->cx + 1
+                        );
 
     abAppend(ab, status, len);
 
@@ -768,6 +772,7 @@ void editorInsertNewline() {
     if (E.cur_buf->cx == 0) {
         editorInsertRow(E.cur_buf->cy, "", 0);
     } else {
+        // cut the line at the cursor
         erow *row = &E.cur_buf->row[E.cur_buf->cy];
         editorInsertRow(E.cur_buf->cy + 1, &row->chars[E.cur_buf->cx], row->size - E.cur_buf->cx);
         row = &E.cur_buf->row[E.cur_buf->cy];
@@ -1040,12 +1045,32 @@ void processKey() {
             editorInsertNewline();
             break;
 
+        case '\t': // tab
+            for (int i=0; i<SOFT_TAB_SIZE; i++) {
+                editorInsertChar(' ');
+            }
+            break;
+
         case DEL_KEY:
             editorMoveCursor(ARROW_RIGHT);
             // fall through
         case BACKSPACE:
         case CTRL_KEY('h'):
-            editorDelChar();
+            {
+                int isSoftTab = 1;
+                for (int i=1; i<=2; i++) {
+                    if (row->chars[E.cur_buf->cx-i] != ' ') {
+                        isSoftTab = 0;
+                        break;
+                    }
+                }
+                if (isSoftTab) {
+                    for (int i=0; i<SOFT_TAB_SIZE; i++)
+                        editorDelChar();
+                }
+                else
+                    editorDelChar();
+            }
             break;
 
         // cursor movement
@@ -1147,7 +1172,6 @@ int main(int argc, char ** argv) {
     editorSetStatusMessage("Help: Ctrl-S = save | Ctrl-Q = quit");
 
     while (1) {
-        // editorSetStatusMessage(&E.cur_buf->row[E.cur_buf->cy].chars[E.cur_buf->cx]);
         refreshScreen();
         processKey();
     }

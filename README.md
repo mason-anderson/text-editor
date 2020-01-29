@@ -19,7 +19,7 @@ todo list:
 - [ ] undo & redo
 - [x] open multiple buffers
 - [ ] hard wrapping lines
-- [ ] soft tab
+- [x] soft tab
 - [ ] copy & paste
 - [ ] config file
 * [x] bracket completion
